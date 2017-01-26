@@ -40,21 +40,22 @@
 
 
 (defn get-document [id]
-  (jdbc/db-query-with-resultset
+  (jdbc/query
    (db-connection)
     ["select * from documents where id = ?" id]
-    #(cond
-      (empty? %) {:status 404}
-      :else (response (first %)))))
+    {:result-set-fn 
+     #(cond
+        (empty? %) {:status 404}
+        :else (response (first %)))}))
 
 (defn uuid [] (str (java.util.UUID/randomUUID)))
 
 (defn get-all-documents []
   (response
-   (jdbc/db-query-with-resultset
+   (jdbc/query
     (db-connection)
      ["select * from documents"]
-     #(into [] %))))
+     {:result-set-fn  #(into [] %)})))
 
 (defn update-document [id doc]
   (jdbc/update!
